@@ -1,5 +1,13 @@
 <%= render 'menu' %>
 
+<% if policy(@group).add? %>
+  <%= form_tag add_members_group_path, :id => :invite_member_form, :method => :post do %>
+    <%= label_tag :username, 'Username:' %>
+    <%= text_field_tag :username %>
+    <%= submit_tag 'Add' %>
+  <% end %>
+<% end %>
+
 <table class="main_table" >
   <thead>
     <tr>

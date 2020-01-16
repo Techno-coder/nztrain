@@ -48,6 +48,10 @@ class GroupPolicy < AuthenticatedPolicy
     user.is_admin? or user.owns(record) or member? && [Group::MEMBERSHIP[:open], Group::MEMBERSHIP[:invitation]].include?(record.membership)
   end
 
+  def add?
+    user.is_admin?
+  end
+
   def reject?
     user.is_admin? or user.owns(record)
   end
