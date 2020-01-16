@@ -52,6 +52,10 @@ class GroupPolicy < AuthenticatedPolicy
     user.is_admin?
   end
 
+  def remove?
+    user.is_admin?
+  end
+
   def reject?
     user.is_admin? or user.owns(record)
   end
