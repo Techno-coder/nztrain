@@ -65,8 +65,11 @@ chroot "$ISOLATE_ROOT" apt-get install python-software-properties # provides add
 
 [ -z "$TRAVIS" ] && { # if not in Travis-CI
   # python ppa
-  echo "$chroot_cmd add-apt-repository ppa:fkrull/deadsnakes -y"
-  chroot "$ISOLATE_ROOT" add-apt-repository ppa:fkrull/deadsnakes -y
+  if ! chroot "$ISOLATE_ROOT" apt-cache show python3.4 &>/dev/null ||
+      ! chroot "$ISOLATE_ROOT" apt-cache show python3.8 &>/dev/null; then
+    echo "$chroot_cmd add-apt-repository ppa:deadsnakes/ppa -y"
+    chroot "$ISOLATE_ROOT" add-apt-repository ppa:deadsnakes/ppa -y
+  fi
 
   # ruby ppa
   echo "$chroot_cmd add-apt-repository ppa:brightbox/ruby-ng -y"
@@ -91,13 +94,25 @@ chroot "$ISOLATE_ROOT" apt-get install ruby # Ruby (ruby)
 echo "$chroot_install ghc"
 chroot "$ISOLATE_ROOT" apt-get install ghc # Haskell (ghc)
 
-echo "$chroot_install default-jdk"
-chroot "$ISOLATE_ROOT" apt-get install default-jdk # Java
+if ! chroot "$ISOLATE_ROOT" apt-cache show openjdk-11-jdk &>/dev/null; then
+  # add java ppa
+  echo "$chroot_cmd add-apt-repository ppa:openjdk-r/ppa -y"
+  chroot "$ISOLATE_ROOT" add-apt-repository ppa:openjdk-r/ppa -y
+
+  echo "$chroot_cmd apt-get update"
+  chroot "$ISOLATE_ROOT" apt-get update
+fi
+
+echo "$chroot_install openjdk-11-jdk"
+chroot "$ISOLATE_ROOT" apt-get install openjdk-11-jdk # Java
 
 [ -z "$TRAVIS" ] && { # if not in Travis-CI
 
   echo "$chroot_install python3.4"
   chroot "$ISOLATE_ROOT" apt-get install python3.4 # Python 3.4
+  echo "$chroot_install python3.8"
+  chroot "$ISOLATE_ROOT" apt-get install python3.8 # Python 3.8
+  # note: when updating these Python versions, also update the check for adding the PPA above
 
   echo "$chroot_install ruby2.2"
   chroot "$ISOLATE_ROOT" apt-get install ruby2.2
@@ -144,25 +159,66 @@ if [ ! -f "$ISOLATE_ROOT/usr/bin/cint.rb" ] ; then
   $cmd
 fi
 
-# gcc 4.9.3 on Precise (will not be needed when we use trusty tahr)
+# gcc 9
 echo "$chroot_cmd add-apt-repository ppa:ubuntu-toolchain-r/test -y"
 chroot "$ISOLATE_ROOT" add-apt-repository ppa:ubuntu-toolchain-r/test -y
 
 echo "$chroot_cmd apt-get update"
 chroot "$ISOLATE_ROOT" apt-get update
 
-echo "$chroot_cmd apt-get install gcc-4.9"
-chroot "$ISOLATE_ROOT" apt-get install gcc-4.9
+echo "$chroot_cmd apt-get install gcc-9"
+chroot "$ISOLATE_ROOT" apt-get install gcc-9
 
-echo "$chroot_cmd apt-get install g++-4.9"
-chroot "$ISOLATE_ROOT" apt-get install g++-4.9
+echo "$chroot_cmd apt-get install g++-9"
+chroot "$ISOLATE_ROOT" apt-get install g++-9
 
-echo "$chroot_cmd update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.9 75"
-chroot "$ISOLATE_ROOT" update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.9 75
+echo "$chroot_cmd update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 75"
+chroot "$ISOLATE_ROOT" update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 75
 
-echo "$chroot_cmd update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.9 75"
-chroot "$ISOLATE_ROOT" update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.9 75
-# gcc 4.9.3 done
+echo "$chroot_cmd update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 75"
+chroot "$ISOLATE_ROOT" update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 75
+# gcc 9 done
 
-# let user know that chroot installs are finished
+# JavaScript V8 engine compile and install
+echo "Preparing to compile and install the JavaScript V8 engine."
+echo
+echo "If this fails, visit https://v8.dev/docs/build and follow the instructions."
+echo "This may take a while ..."
+echo
+set -x
 
+: Making temporary directory
+mkdir ~/v8-build
+cd ~/v8-build
+
+: Installing depot_tools
+git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
+export PATH="$PATH:$PWD/depot_tools"
+gclient
+
+: Getting V8 source code
+mkdir v8
+cd v8
+fetch v8
+cd v8
+
+: Installing additional build dependencies
+gclient sync
+./build/install-build-deps.sh
+
+: Compiling V8
+./tools/dev/v8gen.py x64.release -- v8_use_external_startup_data=false
+ninja -C out.gn/x64.release d8
+
+: Copying executable into place
+cp ./out.gn/x64.release/d8 "$ISOLATE_ROOT"/usr/bin/d8
+
+: Cleaning up
+cd ~
+rm -r v8-build
+
+set +x
+echo "JavaScript V8 installed into $ISOLATE_ROOT/usr/bin/d8"
+echo
+
+echo 'Finished chroot installs!'
