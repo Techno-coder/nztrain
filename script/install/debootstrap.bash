@@ -34,7 +34,7 @@ if [[ "$ISOLATE_ROOT" != "/" ]] && [[ ! -d "$ISOLATE_ROOT" ]]; then
   # add sources
   echo deb http://archive.ubuntu.com/ubuntu/ $SUITE-updates main restricted >> "$ISOLATE_ROOT"/etc/apt/sources.list
   echo deb http://archive.ubuntu.com/ubuntu/ $SUITE universe >> "$ISOLATE_ROOT"/etc/apt/sources.list
-  echo deb http://security.ubuntu.com/ubuntu $SUITE-security main restricted >> "$ISOLATE_ROOT"/etc/apt/sources.list
+  echo deb http://security.ubuntu.com/ubuntu $SUITE-security main restricted universe >> "$ISOLATE_ROOT"/etc/apt/sources.list
   echo deb http://nz.archive.ubuntu.com/ubuntu/ $SUITE multiverse >> "$ISOLATE_ROOT"/etc/apt/sources.list
   echo deb-src http://nz.archive.ubuntu.com/ubuntu/ $SUITE multiverse >> "$ISOLATE_ROOT"/etc/apt/sources.list
   echo deb http://nz.archive.ubuntu.com/ubuntu/ $SUITE-updates multiverse >> "$ISOLATE_ROOT"/etc/apt/sources.list
