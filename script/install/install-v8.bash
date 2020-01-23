@@ -7,9 +7,10 @@ echo "This may take a while ..."
 echo
 set -x
 
-: Installing Git
-apt-get install git
-
+: Installing dependencies
+apt-get install python -y
+apt-get install git -y
+apt-get install wget -y
 
 : Making temporary directory
 mkdir /v8-build
