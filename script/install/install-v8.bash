@@ -13,8 +13,8 @@ apt-get install git -y
 apt-get install wget -y
 
 : Making temporary directory
-mkdir /v8-build
-cd /v8-build
+mkdir /tmp/v8-build
+cd /tmp/v8-build
 
 : Installing depot_tools
 git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
@@ -39,8 +39,7 @@ ninja -C out.gn/x64.release d8
 cp ./out.gn/x64.release/d8 /usr/bin/d8
 
 : Cleaning up
-cd /
-rm -rf v8-build
+rm -rf /tmp/v8-build
 
 set +x
 echo "JavaScript V8 installed into $ISOLATE_ROOT/usr/bin/d8"
