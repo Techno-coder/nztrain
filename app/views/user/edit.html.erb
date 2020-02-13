@@ -1,4 +1,4 @@
 <% content_for :title, "Editing #{handle(@user)}" %>
-<% toolbox_push :back, user_path(@user) %>
+<% toolbox_push :back, @user %>
 
 <%= render 'form' %>
