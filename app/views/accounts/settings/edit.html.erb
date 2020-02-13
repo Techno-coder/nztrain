@@ -1,5 +1,5 @@
 <% content_for :title, "Edit Profile" %>
-<% toolbox_push :back, user_path(@user) %>
+<% toolbox_push :back, :back %>
 
 <%= form_for(resource, :as => resource_name, :url => "/accounts/settings/update", :html => { :multipart => true, :method => :put }) do |f| %>
   <%= devise_error_messages! %>
