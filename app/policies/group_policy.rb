@@ -40,7 +40,7 @@ class GroupPolicy < AuthenticatedPolicy
     user.is_admin?
   end
 
-  def remove?
+  def remove_user?
     user.is_admin?
   end
 
