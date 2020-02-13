@@ -23,7 +23,7 @@ class Groups::MembersController < ApplicationController
 
   def add
     @group = Group.find(params[:id])
-    authorize @group, :add?
+    authorize @group, :add_user?
     @user = User.find_by_username(params[:username])
     if @user.nil?
       redirect_to(members_group_path(@group), :alert => "No user found with username \"#{params[:username]}\"")

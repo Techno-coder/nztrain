@@ -36,7 +36,7 @@ class GroupPolicy < AuthenticatedPolicy
     user.is_staff? or record.id == 0 or member? or user.owns(record)
   end
 
-  def add?
+  def add_user?
     user.is_admin?
   end
 
