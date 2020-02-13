@@ -21,16 +21,6 @@ class Groups::MembersController < ApplicationController
     @memberships = @group.memberships.includes(:member).order(:created_at).reverse_order
   end
 
-  def join
-    @group = Group.find(params[:id])
-    authorize @group, :join?
-    if @group.join(current_user)
-      redirect_to(@group, :notice => "You are now a member of this group")
-    else
-      redirect_to(@group, :alert => "You are already a member of this group")
-    end
-  end
-
   def add
     @group = Group.find(params[:id])
     authorize @group, :add?
@@ -42,6 +32,16 @@ class Groups::MembersController < ApplicationController
     else
       @group.join(@user)
       redirect_to(members_group_path(@group), :notice => "#{@user.username} has been added to this group")
+    end
+  end
+
+  def join
+    @group = Group.find(params[:id])
+    authorize @group, :join?
+    if @group.join(current_user)
+      redirect_to(@group, :notice => "You are now a member of this group")
+    else
+      redirect_to(@group, :alert => "You are already a member of this group")
     end
   end
 
