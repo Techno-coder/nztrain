@@ -24,7 +24,7 @@
         <td><%= link_to membership.member.username, membership.member %></td>
         <td><%= membership.created_at %></td>
         <% if policy(@group).remove_user? %>
-          <td><%= link_to("Remove", remove_members_group_path(@group, :user_id => membership.member.id ), :data => { :confirm => 'Are you sure?' }, :method => "put") %></td>
+          <td><%= link_to("Remove", remove_members_group_path(@group, :user_id => membership.member.id), :data => { :confirm => 'Are you sure?' }, :method => "put") %></td>
         <% end %>
       </tr>
     <% end %>
