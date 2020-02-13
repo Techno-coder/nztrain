@@ -40,6 +40,10 @@ class GroupPolicy < AuthenticatedPolicy
     user.is_admin?
   end
 
+  def remove?
+    user.is_admin?
+  end
+
   def join?
     record.id != 0 && (user.is_admin? || user.owns(record) || record.membership == Group::MEMBERSHIP[:open] || record.invitations.pending.where(:target_id => user.id).any?) && !member?
   end
@@ -50,10 +54,6 @@ class GroupPolicy < AuthenticatedPolicy
 
   def invite?
     user.is_admin? or user.owns(record) or member? && [Group::MEMBERSHIP[:open], Group::MEMBERSHIP[:invitation]].include?(record.membership)
-  end
-
-  def remove?
-    user.is_admin?
   end
 
   def reject?
